@@ -41,6 +41,8 @@ func main() {
 	switch command {
 	case "init":
 		initMigrationFolder()
+	case "add":
+		log.Fatal("Add not implemented yet")
 	case "migrate":
 		migrateDatabase(db)
 	case "rollback":
@@ -129,6 +131,14 @@ func initMigrationFolder() {
 		log.Fatal("Error creating migration file: ", err)
 	}
 	defer file.Close()
+
+	_, err = file.WriteString(`-- +migrate Up
+	
+-- -migrate Down
+	`)
+	if err != nil {
+		log.Fatal("Error writing to migration file: ", err)
+	}
 
 	fmt.Println("Migration file created successfully!")
 }
