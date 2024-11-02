@@ -4,6 +4,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"io"
 	"log"
 	"os"
 
@@ -25,7 +26,8 @@ func main() {
 
 	driver, databaseString := scanDatabaseInfo()
 
-	_ = initConnection(driver, databaseString)
+	db := initConnection(driver, databaseString)
+	defer db.Close()
 
 	// TODO: Read all files in the migrations folder
 	// fileName := "migrations/001_initial.sql"
@@ -40,7 +42,7 @@ func main() {
 	case "init":
 		initMigrationFolder()
 	case "migrate":
-		log.Fatal("Migrate not implemented yet")
+		migrateDatabase(db)
 	case "rollback":
 		log.Fatal("Rollback not implemented yet")
 	case "reset":
@@ -75,9 +77,9 @@ func scanDatabaseInfo() (string, string) {
 	}
 
 	// Scan the database info
-	fmt.Println("Enter database driver:")
+	fmt.Print("Enter database driver: ")
 	fmt.Scanln(&driver)
-	fmt.Println("Enter database string:")
+	fmt.Print("Enter database string: ")
 	fmt.Scanln(&databaseString)
 
 	// Cache the database info
@@ -101,7 +103,6 @@ func initConnection(driver string, databaseString string) *sql.DB {
 	if err != nil {
 		log.Fatal("Error opening the database: ", err)
 	}
-	defer db.Close()
 
 	// Verify the connection
 	err = db.Ping()
@@ -130,4 +131,37 @@ func initMigrationFolder() {
 	defer file.Close()
 
 	fmt.Println("Migration file created successfully!")
+}
+
+func migrateDatabase(db *sql.DB) {
+	// Read all files in the migrations folder
+	files, err := os.ReadDir("migrations")
+	if err != nil {
+		log.Fatal("Error reading migrations folder: ", err)
+	}
+
+	for _, file := range files {
+		if !file.IsDir() {
+			filePath := "migrations/" + file.Name()
+			f, err := os.Open(filePath)
+			if err != nil {
+				log.Fatal("Error opening file: ", err)
+			}
+
+			content, err := io.ReadAll(f)
+			if err != nil {
+				log.Fatal("Error reading file: ", err)
+			}
+			defer f.Close()
+
+			// Execute the migration
+			_, err = db.Exec(string(content))
+			if err != nil {
+				log.Fatal("Error executing migration: ", err)
+			}
+
+			fmt.Printf(`Miration %s executed successfully!`, file.Name())
+			fmt.Println()
+		}
+	}
 }
