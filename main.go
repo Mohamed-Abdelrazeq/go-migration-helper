@@ -43,16 +43,14 @@ func main() {
 	case "add":
 		addMigration()
 	case "migrate":
-		// TODO: Execute the up migration
 		// TODO: Keep track of the migration files that have been executed
 		migrateDatabase(db)
 	case "rollback":
-		// TODO: Execute the down migration for the most recent migration file
 		// TODO: Remove the migration file from the executed list
 		log.Fatal("Rollback not implemented yet")
 	case "reset":
 		// TODO: Execute the down migration for all migration files
-		log.Fatal("Reset not implemented yet")
+		resetMigrations(db)
 	default:
 		log.Fatal("Unknown command: ", command)
 	}
@@ -163,7 +161,6 @@ func migrateDatabase(db *sql.DB) {
 
 			// Execute the migration
 			upMigration, err := extractUpOrDownMigration("up", string(content))
-			println(upMigration)
 			if err != nil {
 				log.Fatal("Error extracting up migration: ", err)
 			}
@@ -227,5 +224,42 @@ func extractUpOrDownMigration(direction string, content string) (string, error) 
 		return content[strings.Index(content, "-- -migrate Down"):], nil
 	default:
 		return "", errors.New("invalid direction")
+	}
+}
+
+func resetMigrations(db *sql.DB) {
+	// Read all files in the migrations folder
+	files, err := os.ReadDir("migrations")
+	if err != nil {
+		log.Fatal("Error reading migrations folder: ", err)
+	}
+
+	for _, file := range files {
+		if !file.IsDir() {
+			filePath := "migrations/" + file.Name()
+			f, err := os.Open(filePath)
+			if err != nil {
+				log.Fatal("Error opening file: ", err)
+			}
+
+			content, err := io.ReadAll(f)
+			if err != nil {
+				log.Fatal("Error reading file: ", err)
+			}
+			defer f.Close()
+
+			// Execute the migration
+			downMigration, err := extractUpOrDownMigration("down", string(content))
+			if err != nil {
+				log.Fatal("Error extracting up migration: ", err)
+			}
+			_, err = db.Exec(downMigration)
+			if err != nil {
+				log.Fatal("Error executing migration: ", err)
+			}
+
+			fmt.Printf(`Miration %s executed successfully!`, file.Name())
+			fmt.Println()
+		}
 	}
 }
