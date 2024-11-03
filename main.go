@@ -35,25 +35,21 @@ func main() {
 	db := initConnection(driver, databaseString)
 	defer db.Close()
 
-	// TODO: Read all files in the migrations folder
-	// fileName := "migrations/001_initial.sql"
-
-	// Read the migration file
-	// content, err := io.ReadAll(fileName)
-	// if err != nil {
-	// 	log.Fatal("Error reading migration file: ", err)
-	// }
-
 	switch command {
 	case "init":
 		initMigrationFolder()
 	case "add":
 		addMigration()
 	case "migrate":
+		// TODO: Execute the up migration
+		// TODO: Keep track of the migration files that have been executed
 		migrateDatabase(db)
 	case "rollback":
+		// TODO: Execute the down migration for the most recent migration file
+		// TODO: Remove the migration file from the executed list
 		log.Fatal("Rollback not implemented yet")
 	case "reset":
+		// TODO: Execute the down migration for all migration files
 		log.Fatal("Reset not implemented yet")
 	default:
 		log.Fatal("Unknown command: ", command)
@@ -117,8 +113,6 @@ func initConnection(driver string, databaseString string) *sql.DB {
 	if err != nil {
 		log.Fatal("Error connecting to the database: ", err)
 	}
-
-	fmt.Println("Successfully connected to the database!")
 	return db
 }
 
@@ -128,8 +122,6 @@ func initMigrationFolder() {
 		fmt.Println("Error creating folder:", err)
 		return
 	}
-
-	fmt.Println("Migration folder created successfully!")
 
 	// Create a initial migration file
 	file, err := os.Create("migrations/0001_initial.sql")
@@ -143,7 +135,7 @@ func initMigrationFolder() {
 		log.Fatal("Error writing to migration file: ", err)
 	}
 
-	fmt.Println("Migration file created successfully!")
+	fmt.Println("Project initialized successfully!")
 }
 
 func migrateDatabase(db *sql.DB) {
