@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func MigrateDatabase(db *sql.DB) {
+func Migrate(db *sql.DB) {
 	// Read all files in the migrations folder
 	files, err := os.ReadDir("migrations")
 	if err != nil {
@@ -39,9 +39,9 @@ func MigrateDatabase(db *sql.DB) {
 			if err != nil {
 				log.Fatal("Error executing migration: ", err)
 			}
+			helpers.Cache("DB_MIGRATION_VERSION", file.Name())
 
-			fmt.Printf(`Miration %s executed successfully!`, file.Name())
-			fmt.Println()
+			fmt.Printf("Migration %s executed successfully!\n", file.Name())
 		}
 	}
 }

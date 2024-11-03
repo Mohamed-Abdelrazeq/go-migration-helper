@@ -22,9 +22,10 @@ func main() {
 
 	command := os.Args[1]
 
-	driver, databaseString := helpers.ScanDatabaseInfo()
+	// Create .env file if it doesn't exist
+	helpers.InitCache()
 
-	db := helpers.Connect(driver, databaseString)
+	db := helpers.Connect(helpers.ScanDatabaseInfo())
 	defer db.Close()
 
 	switch command {
@@ -33,11 +34,9 @@ func main() {
 	case "add":
 		actions.AddMigration()
 	case "migrate":
-		// TODO: Keep track of the migration files that have been executed
-		actions.MigrateDatabase(db)
+		actions.Migrate(db)
 	case "rollback":
-		// TODO: Remove the migration file from the executed list
-		log.Fatal("Rollback not implemented yet")
+		actions.Rollback(db)
 	case "reset":
 		// TODO: Execute the down migration for all migration files
 		actions.ResetMigrations(db)
