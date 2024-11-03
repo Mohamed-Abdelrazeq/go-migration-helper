@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
 
 	_ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
@@ -14,6 +15,11 @@ import (
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 )
+
+const newMigrationTemplate = `-- +migrate Up
+
+-- -migrate Down
+		`
 
 func main() {
 	log.Println("Starting the application...")
@@ -42,7 +48,7 @@ func main() {
 	case "init":
 		initMigrationFolder()
 	case "add":
-		log.Fatal("Add not implemented yet")
+		addMigration()
 	case "migrate":
 		migrateDatabase(db)
 	case "rollback":
@@ -126,16 +132,13 @@ func initMigrationFolder() {
 	fmt.Println("Migration folder created successfully!")
 
 	// Create a initial migration file
-	file, err := os.Create("migrations/001_initial.sql")
+	file, err := os.Create("migrations/0001_initial.sql")
 	if err != nil {
 		log.Fatal("Error creating migration file: ", err)
 	}
 	defer file.Close()
 
-	_, err = file.WriteString(`-- +migrate Up
-	
--- -migrate Down
-	`)
+	_, err = file.WriteString(newMigrationTemplate)
 	if err != nil {
 		log.Fatal("Error writing to migration file: ", err)
 	}
@@ -174,4 +177,45 @@ func migrateDatabase(db *sql.DB) {
 			fmt.Println()
 		}
 	}
+}
+
+func addMigration() {
+
+	// Get the new migration file name from args
+	if len(os.Args) < 3 {
+		log.Fatal("Expected migration file name")
+	}
+
+	newFileName := os.Args[2]
+
+	// Scan most recent migration file
+	files, err := os.ReadDir("migrations")
+	if err != nil {
+		log.Fatal("Error reading migrations folder: ", err)
+	}
+
+	lastFileName := files[len(files)-1].Name()
+	lastFileNumber, err := strconv.Atoi(lastFileName[:4])
+	if err != nil {
+		log.Fatal("Error converting file number to integer: ", err)
+	}
+
+	fmt.Println(lastFileNumber)
+
+	newFileFullName := fmt.Sprintf("migrations/%s_%s.sql", fmt.Sprintf("%04d", lastFileNumber+1), newFileName)
+
+	println(newFileFullName)
+	// Create a new migration file
+	file, err := os.Create(newFileFullName)
+	if err != nil {
+		log.Fatal("Error creating migration file: ", err)
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(newMigrationTemplate)
+	if err != nil {
+		log.Fatal("Error writing to migration file: ", err)
+	}
+
+	fmt.Println("Migration file created successfully!")
 }
