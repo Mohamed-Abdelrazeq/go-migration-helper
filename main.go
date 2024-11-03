@@ -3,11 +3,13 @@ package main
 // postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	_ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
@@ -160,7 +162,12 @@ func migrateDatabase(db *sql.DB) {
 			defer f.Close()
 
 			// Execute the migration
-			_, err = db.Exec(string(content))
+			upMigration, err := extractUpOrDownMigration("up", string(content))
+			println(upMigration)
+			if err != nil {
+				log.Fatal("Error extracting up migration: ", err)
+			}
+			_, err = db.Exec(upMigration)
 			if err != nil {
 				log.Fatal("Error executing migration: ", err)
 			}
@@ -210,4 +217,15 @@ func addMigration() {
 	}
 
 	fmt.Println("Migration file created successfully!")
+}
+
+func extractUpOrDownMigration(direction string, content string) (string, error) {
+	switch direction {
+	case "up":
+		return content[0:strings.Index(content, "-- -migrate Down")], nil
+	case "down":
+		return content[strings.Index(content, "-- -migrate Down"):], nil
+	default:
+		return "", errors.New("invalid direction")
+	}
 }
