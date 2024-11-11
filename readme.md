@@ -1,10 +1,9 @@
 # Go Migration Helper
-
 Go Migration Helper is a tool to manage database migrations for your Go projects. It provides a simple interface to initialize migrations, add new migration files, migrate all files, roll back recent changes, and reset the database.
 
 ## Features
 
-- **Init Migration**: Initialize a new migration.
+- **Init Migration**: Initialize a first migration.
 - **Add New Migration File**: Add a new migration file.
 - **Migrate All Files**: Apply all pending migrations.
 - **Roll Back Recent File**: Roll back the most recent migration.
@@ -51,7 +50,7 @@ go-migration-helper reset
 
 To install Go Migration Helper, use:
 ```sh
-go get github.com/yourusername/go-migration-helper
+go get github.com/Mohamed-Abdelrazeq/go-migration-helper
 ```
 
 ## Contributing
@@ -61,3 +60,5 @@ Contributions are welcome! Please submit a pull request or open an issue to disc
 ## License
 
 This project is licensed under the MIT License.
+
+
