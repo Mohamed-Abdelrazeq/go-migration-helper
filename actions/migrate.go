@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"go-migration-helper/helpers"
+	"go-migration-helper/logs"
 	"io"
 	"log"
 	"os"
@@ -38,8 +39,9 @@ func Migrate(db *sql.DB) {
 			_, err = db.Exec(upMigration)
 			if err != nil {
 				log.Fatal("Error executing migration: ", err)
+				return
 			}
-			helpers.Cache("DB_MIGRATION_VERSION", file.Name())
+			logs.Push(file.Name())
 
 			fmt.Printf("Migration %s executed successfully!\n", file.Name())
 		}

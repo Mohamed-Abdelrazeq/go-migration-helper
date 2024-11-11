@@ -14,7 +14,7 @@ type Stack struct {
 	Elements []string `json:"elements"`
 }
 
-func readStackFromFile() (*Stack, error) {
+func Logs() (*Stack, error) {
 	jsonFile, err := os.Open(constants.LogsFileName)
 	if err != nil {
 		fmt.Println(err)
@@ -57,7 +57,7 @@ func writeStackToFile(stack *Stack) error {
 }
 
 func Push(element string) error {
-	stack, err := readStackFromFile()
+	stack, err := Logs()
 	if err != nil {
 		return errors.New("error reading stack from file")
 	}
@@ -66,7 +66,7 @@ func Push(element string) error {
 }
 
 func Pop() (string, error) {
-	stack, err := readStackFromFile()
+	stack, err := Logs()
 	if err != nil {
 		return "", err
 	}
