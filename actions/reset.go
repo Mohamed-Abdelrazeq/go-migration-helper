@@ -13,10 +13,15 @@ import (
 func ResetMigrations(db *sql.DB) {
 
 	// read logs
-	for {
+	migrationLogs, err := logs.Logs()
+	if err != nil {
+		log.Fatal("Error reading logs: ", err)
+	}
+	for i := 0; i < len(migrationLogs.Elements); i++ {
 		migrationFileName, err := logs.Pop()
 		if err != nil {
-			return
+			log.Fatal("Error reading logs: ", err)
+			break
 		}
 
 		// read migration file
@@ -24,24 +29,28 @@ func ResetMigrations(db *sql.DB) {
 		f, err := os.Open(filePath)
 		if err != nil {
 			log.Fatal("Error opening file: ", err)
+			break
 		}
 
 		content, err := io.ReadAll(f)
 		if err != nil {
 			log.Fatal("Error reading file: ", err)
+			break
 		}
 		f.Close()
 
 		downMigration, err := helpers.ExtractUpOrDownMigration("down", string(content))
 		if err != nil {
 			log.Fatal("Error extracting up migration: ", err)
+			break
 		}
 		_, err = db.Exec(downMigration)
 		if err != nil {
 			log.Fatal("Error executing migration: ", err)
+			break
 		}
 
-		fmt.Printf(`Rolling back %s successfully!`, f.Name())
+		fmt.Printf(`Rolled back %s excuted successfully!`, f.Name())
 		fmt.Println()
 	}
 
