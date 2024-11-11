@@ -14,8 +14,6 @@ import (
 )
 
 func main() {
-	log.Println("Starting the application...")
-
 	if len(os.Args) < 2 {
 		log.Fatal("Expected 'up' or 'down' command")
 	}
@@ -38,7 +36,6 @@ func main() {
 	case "rollback":
 		actions.Rollback(db)
 	case "reset":
-		// TODO: Execute the down migration for all migration files
 		actions.ResetMigrations(db)
 	default:
 		log.Fatal("Unknown command: ", command)

@@ -8,6 +8,7 @@ import (
 )
 
 func InitMigrationFolder() {
+	log.Println("Starting the application...")
 	err := os.Mkdir("migrations", 0755)
 	if err != nil {
 		fmt.Println("Error creating folder:", err)
