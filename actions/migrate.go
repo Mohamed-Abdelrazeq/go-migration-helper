@@ -10,7 +10,21 @@ import (
 	"os"
 )
 
+func contains(list []string, str string) bool {
+	for _, v := range list {
+		if v == str {
+			return true
+		}
+	}
+	return false
+}
+
 func Migrate(db *sql.DB) {
+	migrationLogs, err := logs.Logs()
+	if err != nil {
+		log.Fatal("Error reading logs: ", err)
+	}
+
 	// Read all files in the migrations folder
 	files, err := os.ReadDir("migrations")
 	if err != nil {
@@ -18,7 +32,7 @@ func Migrate(db *sql.DB) {
 	}
 
 	for _, file := range files {
-		if !file.IsDir() {
+		if !file.IsDir() && !contains(migrationLogs.Elements, file.Name()) {
 			filePath := "migrations/" + file.Name()
 			f, err := os.Open(filePath)
 			if err != nil {
