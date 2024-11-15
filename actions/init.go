@@ -9,6 +9,17 @@ import (
 
 func InitMigrationFolder() {
 	log.Println("Starting the application...")
+
+	// Creating logs file
+	if _, err := os.Stat("logs.json"); os.IsNotExist(err) {
+		file, err := os.Create("logs.json")
+		if err != nil {
+			log.Fatal("Error creating logs.json file: ", err)
+		}
+		defer file.Close()
+	}
+
+	// Create a migrations folder
 	err := os.Mkdir("migrations", 0755)
 	if err != nil {
 		fmt.Println("Error creating folder:", err)
