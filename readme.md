@@ -46,13 +46,6 @@ To reset the database to its initial state, run:
 go-migration-helper reset
 ```
 
-## Installation
-
-To install Go Migration Helper, use:
-```sh
-go get github.com/Mohamed-Abdelrazeq/go-migration-helper
-```
-
 ## Contributing
 
 Contributions are welcome! Please submit a pull request or open an issue to discuss what you would like to change.
