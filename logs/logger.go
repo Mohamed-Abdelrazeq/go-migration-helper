@@ -34,6 +34,7 @@ func Logs() (*Stack, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &stack, nil
 }
 
