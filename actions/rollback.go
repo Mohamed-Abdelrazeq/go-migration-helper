@@ -4,14 +4,15 @@ import (
 	"database/sql"
 	"fmt"
 	"go-migration-helper/helpers"
+	"go-migration-helper/logs"
 	"io"
 	"log"
 	"os"
 )
 
 func Rollback(db *sql.DB) {
-	latestMigration := os.Getenv("DB_MIGRATION_VERSION")
-	if latestMigration == "" {
+	latestMigration, err := logs.Pop()
+	if err != nil {
 		log.Fatal("No migration to rollback")
 	}
 
